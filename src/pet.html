@@ -9,292 +9,408 @@ html, body {
   background: transparent;
   overflow: hidden;
   user-select: none;
-  font-family: -apple-system, sans-serif;
+  font-family: "SF Pro Rounded", "SF Pro Display", -apple-system, sans-serif;
 }
 
 #container {
   width: 100%; height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
   -webkit-app-region: drag;
+  padding: 8px;
+}
+
+/* ─── Pet Canvas ─── */
+#pet-wrap {
+  position: relative;
+  width: 140px; height: 140px;
+  display: flex; align-items: center; justify-content: center;
 }
 
 #pet-svg {
-  width: 120px;
-  height: 120px;
-  transition: transform 0.3s ease;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  width: 130px; height: 130px;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.15));
+  transition: filter 0.3s;
 }
-#pet-svg:hover { transform: scale(1.1); }
+#pet-svg:hover { filter: drop-shadow(0 8px 25px rgba(0,0,0,0.25)); }
 
-#status-bar {
-  background: rgba(0,0,0,0.75);
-  border-radius: 12px;
-  padding: 6px 12px;
-  margin-top: 4px;
-  color: white;
-  font-size: 11px;
-  text-align: center;
-  backdrop-filter: blur(10px);
+#activity-badge {
+  position: absolute; top: 2px; right: 2px;
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  transition: all 0.3s;
+}
+
+/* ─── Tooltip (name + level) ─── */
+#tooltip {
+  margin-top: 6px;
+  background: rgba(0,0,0,0.65);
+  padding: 4px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; gap: 6px;
   -webkit-app-region: no-drag;
-  max-width: 180px;
-  opacity: 0.9;
 }
-#status-bar .name { font-weight: bold; font-size: 12px; }
-#status-bar .bars { margin-top: 3px; }
-.bar-row { display: flex; align-items: center; gap: 4px; margin: 2px 0; font-size: 9px; }
-.bar-track { flex: 1; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
-.bar-hp .bar-fill { background: #ff6b6b; }
-.bar-happy .bar-fill { background: #ffd93d; }
-.bar-energy .bar-fill { background: #6bcb77; }
-.bar-xp .bar-fill { background: #4d96ff; }
-#state-label { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+#tooltip .emoji { font-size: 14px; }
+#tooltip .name { color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+#tooltip .level { color: rgba(255,255,255,0.5); font-size: 10px; }
 
+/* ─── Mini Bars (only on hover) ─── */
+#mini-bars {
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  display: flex; gap: 3px; align-items: center;
+}
+#container:hover #mini-bars { opacity: 1; }
+.mini-bar {
+  width: 32px; height: 3px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px; overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mini-bar-fill.happy { background: #FFD93D; }
+.mini-bar-fill.energy { background: #6BCB77; }
+.mini-bar-fill.xp { background: #4D96FF; }
+.mini-label { font-size: 7px; color: rgba(255,255,255,0.35); }
+
+/* ─── Context Menu ─── */
 #menu {
   display: none; position: fixed;
-  background: rgba(20,20,30,0.95); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 4px; backdrop-filter: blur(20px); z-index: 1000;
-  -webkit-app-region: no-drag;
+  background: rgba(28,28,35,0.92);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 6px;
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  z-index: 1000; -webkit-app-region: no-drag;
+  min-width: 140px;
 }
-#menu .menu-item { padding: 6px 16px; font-size: 12px; color: #ddd; border-radius: 4px; cursor: pointer; }
-#menu .menu-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
-#menu .sep { height: 1px; background: rgba(255,255,255,0.1); margin: 2px 8px; }
+.menu-item {
+  padding: 7px 14px; font-size: 12px; color: #e0e0e0;
+  border-radius: 6px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s;
+}
+.menu-item:hover { background: rgba(255,255,255,0.08); }
+.menu-item .mi-icon { font-size: 14px; }
+.menu-item .mi-label { flex: 1; }
+.menu-sep { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 10px; }
 
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-@keyframes bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.05); } }
-@keyframes shake { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
-@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes wobble { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
-@keyframes typing { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-@keyframes zzz { 0% { opacity:0; transform: translate(0,0) scale(0.5); } 50% { opacity:1; } 100% { opacity:0; transform: translate(15px,-20px) scale(1.2); } }
-
-.anim-idle { animation: float 3s ease-in-out infinite; }
-.anim-thinking { animation: pulse 1s ease-in-out infinite; }
-.anim-typing { animation: typing 0.15s ease-in-out infinite; }
-.anim-building { animation: shake 0.3s ease-in-out infinite; }
-.anim-happy { animation: bounce 0.5s ease-in-out 3; }
-.anim-sad { animation: wobble 2s ease-in-out infinite; }
-.anim-error { animation: shake 0.15s ease-in-out 5; }
-.anim-sleep { animation: float 5s ease-in-out infinite; opacity: 0.7; }
-.anim-reading { animation: pulse 2s ease-in-out infinite; }
-.anim-working { animation: wobble 1s ease-in-out infinite; }
-.anim-juggling { animation: bounce 0.8s ease-in-out infinite; }
-.anim-conducting { animation: wobble 0.6s ease-in-out infinite; }
-.anim-sweeping { animation: shake 0.5s ease-in-out infinite; }
-.anim-alert { animation: bounce 0.3s ease-in-out 5; }
-.anim-carrying { animation: wobble 0.8s ease-in-out infinite; }
-.anim-wake { animation: bounce 0.6s ease-in-out 2; }
-
-.zzz { position: absolute; top: 20px; right: 20px; font-size: 16px; animation: zzz 2s ease-in-out infinite; color: #6bcb77; }
-.zzz:nth-child(2) { animation-delay: 0.5s; font-size: 12px; }
-.zzz:nth-child(3) { animation-delay: 1s; font-size: 20px; }
-
+/* ─── Stats Panel ─── */
 #stats-panel {
-  display: none; position: fixed; top: 10px; left: 10px; right: 10px;
-  background: rgba(10,10,20,0.95); border: 1px solid rgba(100,200,255,0.2);
-  border-radius: 12px; padding: 12px; font-size: 11px; color: #ccc;
-  backdrop-filter: blur(20px); z-index: 500; -webkit-app-region: no-drag;
+  display: none; position: fixed;
+  top: 8px; left: 8px; right: 8px; bottom: 8px;
+  background: rgba(18,18,28,0.94);
+  border: 1px solid rgba(100,180,255,0.12);
+  border-radius: 14px; padding: 16px;
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  z-index: 500; -webkit-app-region: no-drag;
+  overflow-y: auto;
 }
-#stats-panel h3 { color: #4d96ff; margin-bottom: 8px; font-size: 13px; }
-#stats-panel .stat { display: flex; justify-content: space-between; padding: 2px 0; }
-#stats-panel .stat-val { color: #6bcb77; font-weight: bold; }
-#stats-panel .close-btn { position: absolute; top: 8px; right: 12px; cursor: pointer; color: #666; font-size: 14px; }
-#stats-panel .close-btn:hover { color: #fff; }
+#stats-panel h3 { color: #4D96FF; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+.stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 11px;
+}
+.stat-row:last-child { border: none; }
+.stat-label { color: rgba(255,255,255,0.5); }
+.stat-val { color: #6BCB77; font-weight: 600; font-variant-numeric: tabular-nums; }
+.close-btn {
+  position: absolute; top: 10px; right: 14px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: none;
+  color: rgba(255,255,255,0.4); font-size: 12px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.close-btn:hover { background: rgba(255,70,70,0.3); color: #fff; }
+
+/* ─── Emotions Panel ─── */
+.emo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.emo-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: rgba(255,255,255,0.45);
+}
+.emo-bar { flex:1; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+.emo-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+
+/* ─── ZZZ ─── */
+.zzz {
+  position: absolute; font-size: 14px; font-weight: 700;
+  color: rgba(107,203,119,0.7);
+  animation: zzz 2.5s ease-in-out infinite;
+}
+.zzz:nth-child(1) { top: 15px; right: 25px; animation-delay: 0s; }
+.zzz:nth-child(2) { top: 8px; right: 15px; font-size: 10px; animation-delay: 0.7s; }
+.zzz:nth-child(3) { top: 0px; right: 5px; font-size: 18px; animation-delay: 1.4s; }
+
+/* ─── Animations ─── */
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes bounce { 0%,100% { transform: translateY(0) scaleY(1); } 30% { transform: translateY(-14px) scaleY(1.05); } 60% { transform: translateY(0) scaleY(0.95); } }
+@keyframes shake { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-4deg); } 40% { transform: rotate(4deg); } 60% { transform: rotate(-2deg); } 80% { transform: rotate(2deg); } }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes wobble { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } }
+@keyframes nod { 0%,100% { transform: translateY(0); } 40% { transform: translateY(2px); } }
+@keyframes zzz { 0% { opacity:0; transform: translate(0,0) scale(0.6); } 40% { opacity:0.8; } 100% { opacity:0; transform: translate(12px,-18px) scale(1.3); } }
+
+.a-idle     { animation: float 3.5s ease-in-out infinite; }
+.a-thinking { animation: pulse 1.2s ease-in-out infinite; }
+.a-typing   { animation: nod 0.2s ease-in-out infinite; }
+.a-building { animation: shake 0.4s ease-in-out infinite; }
+.a-reading  { animation: pulse 2.5s ease-in-out infinite; }
+.a-working  { animation: wobble 1.2s ease-in-out infinite; }
+.a-happy    { animation: bounce 0.6s ease-in-out 3; }
+.a-sad      { animation: wobble 2.5s ease-in-out infinite; }
+.a-error    { animation: shake 0.15s ease-in-out 6; }
+.a-sleep    { animation: float 5s ease-in-out infinite; opacity: 0.75; }
+.a-juggling { animation: bounce 0.9s ease-in-out infinite; }
+.a-conducting { animation: wobble 0.5s ease-in-out infinite; }
+.a-sweeping { animation: shake 0.6s ease-in-out infinite; }
+.a-alert    { animation: bounce 0.35s ease-in-out 4; }
+.a-carrying { animation: wobble 0.9s ease-in-out infinite; }
+.a-wake     { animation: bounce 0.7s ease-in-out 2; }
 </style>
 </head>
 <body>
 <div id="container">
-  <div id="zzz-container"></div>
-  <svg id="pet-svg" viewBox="0 0 120 120" class="anim-idle">
-    <ellipse id="body" cx="60" cy="70" rx="35" ry="30" fill="#FFD93D" stroke="#E8A317" stroke-width="2"/>
-    <circle id="head" cx="60" cy="38" r="25" fill="#FFD93D" stroke="#E8A317" stroke-width="2"/>
-    <polygon id="ear-l" points="40,20 35,2 50,15" fill="#FFD93D" stroke="#E8A317" stroke-width="2"/>
-    <polygon id="ear-r" points="80,20 85,2 70,15" fill="#FFD93D" stroke="#E8A317" stroke-width="2"/>
-    <polygon points="42,18 38,6 49,16" fill="#FFB5C0"/>
-    <polygon points="78,18 82,6 71,16" fill="#FFB5C0"/>
-    <g id="eyes">
-      <ellipse cx="50" cy="35" rx="4" ry="5" fill="#333"/>
-      <ellipse cx="70" cy="35" rx="4" ry="5" fill="#333"/>
-      <circle cx="48" cy="33" r="1.5" fill="#fff"/>
-      <circle cx="68" cy="33" r="1.5" fill="#fff"/>
-    </g>
-    <g id="eyes-closed" style="display:none">
-      <line x1="46" y1="35" x2="54" y2="35" stroke="#333" stroke-width="2" stroke-linecap="round"/>
-      <line x1="66" y1="35" x2="74" y2="35" stroke="#333" stroke-width="2" stroke-linecap="round"/>
-    </g>
-    <g id="eyes-happy" style="display:none">
-      <path d="M46,37 Q50,32 54,37" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M66,37 Q70,32 74,37" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
-    </g>
-    <path id="mouth" d="M54,47 Q60,52 66,47" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    <path id="mouth-sad" d="M54,50 Q60,45 66,50" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round" style="display:none"/>
-    <ellipse cx="42" cy="42" rx="5" ry="3" fill="#FFB5C0" opacity="0.5"/>
-    <ellipse cx="78" cy="42" rx="5" ry="3" fill="#FFB5C0" opacity="0.5"/>
-    <path d="M90,75 Q105,60 100,45" stroke="#E8A317" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <ellipse cx="45" cy="98" rx="10" ry="5" fill="#FFD93D" stroke="#E8A317" stroke-width="1.5"/>
-    <ellipse cx="75" cy="98" rx="10" ry="5" fill="#FFD93D" stroke="#E8A317" stroke-width="1.5"/>
-    <text id="status-icon" x="90" y="15" font-size="18" text-anchor="middle"></text>
-  </svg>
-  <div id="status-bar">
-    <div class="name"><span id="pet-emoji">🐱</span> <span id="pet-name">Cat</span> <span id="pet-level">Lv.1</span></div>
-    <div class="bars">
-      <div class="bar-row bar-happy"><span>♥</span><div class="bar-track"><div class="bar-fill" id="fill-happy" style="width:70%"></div></div></div>
-      <div class="bar-row bar-energy"><span>⚡</span><div class="bar-track"><div class="bar-fill" id="fill-energy" style="width:80%"></div></div></div>
-      <div class="bar-row bar-xp"><span>★</span><div class="bar-track"><div class="bar-fill" id="fill-xp" style="width:0%"></div></div></div>
-    </div>
-    <div id="state-label">idle</div>
+  <div id="pet-wrap">
+    <!-- Activity badge -->
+    <div id="activity-badge"></div>
+    <!-- ZZZ container -->
+    <div id="zzz-box"></div>
+    <!-- Pet SVG - clean, rounded, cute -->
+    <svg id="pet-svg" viewBox="0 0 100 100" class="a-idle">
+      <!-- Shadow -->
+      <ellipse cx="50" cy="92" rx="22" ry="4" fill="rgba(0,0,0,0.08)"/>
+      <!-- Body -->
+      <ellipse id="body" cx="50" cy="62" rx="28" ry="24" fill="#FFD93D"/>
+      <!-- Head -->
+      <circle id="head" cx="50" cy="36" r="22" fill="#FFD93D"/>
+      <!-- Ears -->
+      <path d="M32,22 L28,4 L42,16 Z" fill="#FFD93D"/>
+      <path d="M68,22 L72,4 L58,16 Z" fill="#FFD93D"/>
+      <path d="M33,20 L30,7 L41,16 Z" fill="#FFB5C0" opacity="0.6"/>
+      <path d="M67,20 L70,7 L59,16 Z" fill="#FFB5C0" opacity="0.6"/>
+      <!-- Eyes - open -->
+      <g id="eyes-open">
+        <ellipse cx="42" cy="34" rx="3.5" ry="4.5" fill="#2D2D2D"/>
+        <ellipse cx="58" cy="34" rx="3.5" ry="4.5" fill="#2D2D2D"/>
+        <circle cx="40.5" cy="32.5" r="1.5" fill="#fff" opacity="0.9"/>
+        <circle cx="56.5" cy="32.5" r="1.5" fill="#fff" opacity="0.9"/>
+      </g>
+      <!-- Eyes - closed -->
+      <g id="eyes-shut" style="display:none">
+        <path d="M38,34 Q42,37 46,34" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M54,34 Q58,37 62,34" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Eyes - happy -->
+      <g id="eyes-arc" style="display:none">
+        <path d="M38,35 Q42,30 46,35" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M54,35 Q58,30 62,35" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Nose + mouth -->
+      <circle cx="50" cy="39" r="1.5" fill="#F4845F"/>
+      <path id="mouth-smile" d="M46,43 Q50,47 54,43" stroke="#2D2D2D" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path id="mouth-frown" d="M46,46 Q50,42 54,46" stroke="#2D2D2D" stroke-width="1.2" fill="none" stroke-linecap="round" style="display:none"/>
+      <!-- Blush -->
+      <ellipse cx="36" cy="40" rx="4" ry="2.5" fill="#FFB5C0" opacity="0.35"/>
+      <ellipse cx="64" cy="40" rx="4" ry="2.5" fill="#FFB5C0" opacity="0.35"/>
+      <!-- Tail -->
+      <path d="M76,62 Q92,48 88,34" stroke="#E8A317" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Paws -->
+      <ellipse cx="38" cy="84" rx="8" ry="4" fill="#FFD93D"/>
+      <ellipse cx="62" cy="84" rx="8" ry="4" fill="#FFD93D"/>
+      <ellipse cx="38" cy="84" rx="5" ry="2.5" fill="#FFEAA0" opacity="0.5"/>
+      <ellipse cx="62" cy="84" rx="5" ry="2.5" fill="#FFEAA0" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <!-- Tooltip -->
+  <div id="tooltip">
+    <span class="emoji" id="t-emoji">🐱</span>
+    <span class="name" id="t-name">Cat</span>
+    <span class="level" id="t-level">Lv.1</span>
+  </div>
+
+  <!-- Mini bars (show on hover) -->
+  <div id="mini-bars">
+    <span class="mini-label">♥</span>
+    <div class="mini-bar"><div class="mini-bar-fill happy" id="bar-happy" style="width:70%"></div></div>
+    <span class="mini-label">⚡</span>
+    <div class="mini-bar"><div class="mini-bar-fill energy" id="bar-energy" style="width:80%"></div></div>
+    <span class="mini-label">★</span>
+    <div class="mini-bar"><div class="mini-bar-fill xp" id="bar-xp" style="width:0%"></div></div>
   </div>
 </div>
+
+<!-- Context Menu -->
 <div id="menu">
-  <div class="menu-item" onclick="doFeed()">🍎 Feed</div>
-  <div class="menu-item" onclick="doPlay()">🎮 Play</div>
-  <div class="menu-item" onclick="doTrain()">💪 Train</div>
-  <div class="sep"></div>
-  <div class="menu-item" onclick="showStats()">📊 Stats</div>
+  <div class="menu-item" onclick="doAction('feed')"><span class="mi-icon">🍎</span><span class="mi-label">Feed</span></div>
+  <div class="menu-item" onclick="doAction('play')"><span class="mi-icon">🎮</span><span class="mi-label">Play</span></div>
+  <div class="menu-item" onclick="doAction('train')"><span class="mi-icon">💪</span><span class="mi-label">Train</span></div>
+  <div class="menu-sep"></div>
+  <div class="menu-item" onclick="showStats()"><span class="mi-icon">📊</span><span class="mi-label">Stats</span></div>
+  <div class="menu-item" onclick="showEmotions()"><span class="mi-icon">💭</span><span class="mi-label">Emotions</span></div>
 </div>
+
+<!-- Stats Panel -->
 <div id="stats-panel">
-  <span class="close-btn" onclick="hideStats()">✕</span>
-  <h3>📊 Stats</h3>
-  <div id="stats-content"></div>
+  <button class="close-btn" onclick="hidePanel()">✕</button>
+  <h3 id="panel-title">📊 Stats</h3>
+  <div id="panel-content"></div>
 </div>
+
 <script>
 const { ipcRenderer } = require('electron');
-const petSvg = document.getElementById('pet-svg');
-const stateLabel = document.getElementById('state-label');
-const statusIcon = document.getElementById('status-icon');
+const svg = document.getElementById('pet-svg');
+const badge = document.getElementById('activity-badge');
+const zzzBox = document.getElementById('zzz-box');
 const menu = document.getElementById('menu');
-const zzzContainer = document.getElementById('zzz-container');
-
-const STATE_LABELS = {
-  idle:'💤 chilling...', sleep:'😴 sleeping...', wake:'👋 waking up!',
-  thinking:'🤔 thinking...', reading:'📖 reading...', typing:'⌨️ writing code...',
-  building:'🔨 building...', working:'⚙️ working...', happy:'🎉 task done!',
-  sad:'😞 something failed...', error:'❌ error!', juggling:'🤹 subagent running',
-  conducting:'🎼 multi-agent!', sweeping:'🧹 compacting...', alert:'🔔 notification!',
-  carrying:'📦 new worktree',
-};
-const STATE_ICONS = {
-  thinking:'💭', reading:'📖', typing:'⌨️', building:'🔨', happy:'✨', sad:'💧',
-  error:'💥', juggling:'🎪', conducting:'🎼', sweeping:'🧹', alert:'❗',
-  carrying:'📦', working:'⚙️', sleep:'💤', wake:'☀️', idle:'',
-};
 let currentState = 'idle';
 
-function updatePetAppearance(state) {
-  petSvg.className = '';
-  petSvg.classList.add('anim-' + state);
+const BADGE = {
+  thinking:'💭', reading:'📖', typing:'⌨️', building:'🔨', happy:'✨', sad:'💧',
+  error:'💥', juggling:'🎪', conducting:'🎼', sweeping:'🧹', alert:'❗',
+  carrying:'📦', working:'⚙️', sleep:'', wake:'☀️', idle:'',
+};
+const COLORS = {
+  default: '#FFD93D', happy: '#6BCB77', sad: '#B8B8B8', error: '#FF8A8A',
+};
+
+function setAnim(state) {
+  svg.className.baseVal = 'a-' + state;
   currentState = state;
-  document.getElementById('eyes').style.display = ['sleep','happy'].includes(state) ? 'none' : '';
-  document.getElementById('eyes-closed').style.display = state === 'sleep' ? '' : 'none';
-  document.getElementById('eyes-happy').style.display = state === 'happy' ? '' : 'none';
-  document.getElementById('mouth').style.display = ['sad','error'].includes(state) ? 'none' : '';
-  document.getElementById('mouth-sad').style.display = ['sad','error'].includes(state) ? '' : 'none';
-  statusIcon.textContent = STATE_ICONS[state] || '';
-  stateLabel.textContent = STATE_LABELS[state] || state;
+  badge.textContent = BADGE[state] || '';
+  // Eyes
+  const open = document.getElementById('eyes-open');
+  const shut = document.getElementById('eyes-shut');
+  const arc = document.getElementById('eyes-arc');
+  open.style.display = shut.style.display = arc.style.display = 'none';
+  if (state === 'sleep') shut.style.display = '';
+  else if (state === 'happy') arc.style.display = '';
+  else open.style.display = '';
+  // Mouth
+  document.getElementById('mouth-smile').style.display = (state === 'sad' || state === 'error') ? 'none' : '';
+  document.getElementById('mouth-frown').style.display = (state === 'sad' || state === 'error') ? '' : 'none';
+  // Body color
+  const col = state === 'happy' ? COLORS.happy : (state === 'sad' || state === 'error') ? COLORS.sad : COLORS.default;
+  document.getElementById('body').setAttribute('fill', col);
+  document.getElementById('head').setAttribute('fill', col);
   // ZZZ
-  while (zzzContainer.firstChild) zzzContainer.removeChild(zzzContainer.firstChild);
+  while (zzzBox.firstChild) zzzBox.removeChild(zzzBox.firstChild);
   if (state === 'sleep') {
-    for (const txt of ['z','Z','z']) {
-      const s = document.createElement('span');
-      s.className = 'zzz';
-      s.textContent = txt;
-      zzzContainer.appendChild(s);
+    for (const t of ['z','Z','z']) {
+      const s = document.createElement('span'); s.className = 'zzz'; s.textContent = t;
+      zzzBox.appendChild(s);
     }
   }
-  // Color
-  const bodyEl = document.getElementById('body');
-  const headEl = document.getElementById('head');
-  if (state === 'happy') { bodyEl.style.fill = '#6BCB77'; headEl.style.fill = '#6BCB77'; }
-  else if (state === 'sad' || state === 'error') { bodyEl.style.fill = '#A8A8A8'; headEl.style.fill = '#A8A8A8'; }
-  else { bodyEl.style.fill = '#FFD93D'; headEl.style.fill = '#FFD93D'; }
 }
 
-function updateBars(state) {
-  if (!state) return;
-  document.getElementById('fill-happy').style.width = state.happiness + '%';
-  document.getElementById('fill-energy').style.width = state.energy + '%';
-  document.getElementById('fill-xp').style.width = (state.xp / Math.max(1, state.xpNext) * 100) + '%';
-  document.getElementById('pet-name').textContent = state.nickname || state.speciesName;
-  document.getElementById('pet-level').textContent = 'Lv.' + state.level;
-  document.getElementById('pet-emoji').textContent = state.speciesEmoji;
+function updateUI(s) {
+  if (!s) return;
+  document.getElementById('t-emoji').textContent = s.speciesEmoji || '🐱';
+  document.getElementById('t-name').textContent = s.nickname || s.speciesName || 'Cat';
+  document.getElementById('t-level').textContent = 'Lv.' + (s.level || 1);
+  document.getElementById('bar-happy').style.width = (s.happiness || 0) + '%';
+  document.getElementById('bar-energy').style.width = (s.energy || 0) + '%';
+  document.getElementById('bar-xp').style.width = ((s.xp || 0) / Math.max(1, s.xpNext || 20) * 100) + '%';
+  if (s.agentState) setAnim(s.agentState);
 }
 
-ipcRenderer.on('agent-event', (_, event) => {
+// IPC
+ipcRenderer.on('agent-event', (_, e) => {
   const map = { SessionStart:'wake', SessionEnd:'sleep', UserPromptSubmit:'thinking',
-    PreToolUse:'typing', Stop:'happy', StopFailure:'sad', SubagentStart:'juggling',
-    PreCompact:'sweeping' };
-  updatePetAppearance(map[event.type] || 'working');
+    PreToolUse:'typing', Stop:'happy', StopFailure:'sad', SubagentStart:'juggling', PreCompact:'sweeping' };
+  setAnim(map[e.type] || 'working');
 });
-ipcRenderer.on('state-update', (_, state) => {
-  if (state) { updateBars(state); if (state.agentState) updatePetAppearance(state.agentState); }
-});
+ipcRenderer.on('state-update', (_, s) => { if (s) updateUI(s); });
 ipcRenderer.on('show-stats', () => showStats());
 
-document.addEventListener('contextmenu', (e) => {
+// Context menu
+document.addEventListener('contextmenu', e => {
   e.preventDefault();
   menu.style.display = 'block';
-  menu.style.left = Math.min(e.clientX, window.innerWidth - 150) + 'px';
-  menu.style.top = Math.min(e.clientY, window.innerHeight - 150) + 'px';
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 160) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - 200) + 'px';
 });
 document.addEventListener('click', () => { menu.style.display = 'none'; });
 
-async function doFeed() {
-  const r = await ipcRenderer.invoke('feed');
-  stateLabel.textContent = r.message; updatePetAppearance('happy');
-  updateBars(await ipcRenderer.invoke('get-state'));
-}
-async function doPlay() {
-  const r = await ipcRenderer.invoke('play');
-  stateLabel.textContent = r.message; updatePetAppearance('happy');
-  updateBars(await ipcRenderer.invoke('get-state'));
-}
-async function doTrain() {
-  const r = await ipcRenderer.invoke('train');
-  stateLabel.textContent = r.message; updatePetAppearance('building');
-  updateBars(await ipcRenderer.invoke('get-state'));
+async function doAction(action) {
+  const r = await ipcRenderer.invoke(action);
+  if (action === 'train') setAnim('building');
+  else setAnim('happy');
+  updateUI(await ipcRenderer.invoke('get-state'));
 }
 
 async function showStats() {
   const s = await ipcRenderer.invoke('get-stats');
   const p = document.getElementById('stats-panel');
-  const c = document.getElementById('stats-content');
+  const c = document.getElementById('panel-content');
+  document.getElementById('panel-title').textContent = '📊 Stats';
   while (c.firstChild) c.removeChild(c.firstChild);
   const items = [
-    ['Level', s.level], ['XP', s.xp+'/'+s.xpNext], ['Sessions', s.totalSessions],
-    ['Completions', s.totalCompletions], ['Errors', s.totalErrors],
-    ['Tool Uses', s.totalToolUses], ['Subagents', s.totalSubagents],
-    ['Longest Session', s.longestSession+'m'], ['Streak', s.streakDays+'d 🔥'],
-    ['Achievements', s.achievements+'/'+s.totalAchievements+' 🏆'],
+    ['Level', s.level], ['XP', s.xp + ' / ' + s.xpNext],
+    ['Sessions', s.totalSessions], ['Completions', s.totalCompletions],
+    ['Errors', s.totalErrors], ['Tool Uses', s.totalToolUses],
+    ['Subagents', s.totalSubagents], ['Longest Session', s.longestSession + 'm'],
+    ['Streak', s.streakDays + 'd'], ['Achievements', s.achievements + ' / ' + s.totalAchievements],
   ];
   for (const [label, val] of items) {
-    const row = document.createElement('div'); row.className = 'stat';
-    const l = document.createElement('span'); l.textContent = label;
+    const row = document.createElement('div'); row.className = 'stat-row';
+    const l = document.createElement('span'); l.className = 'stat-label'; l.textContent = label;
     const v = document.createElement('span'); v.className = 'stat-val'; v.textContent = val;
     row.appendChild(l); row.appendChild(v); c.appendChild(row);
   }
   p.style.display = 'block';
 }
-function hideStats() { document.getElementById('stats-panel').style.display = 'none'; }
 
-(async () => {
-  const state = await ipcRenderer.invoke('get-state');
-  updateBars(state); updatePetAppearance(state.agentState || 'idle');
-})();
+async function showEmotions() {
+  const s = await ipcRenderer.invoke('get-state');
+  const p = document.getElementById('stats-panel');
+  const c = document.getElementById('panel-content');
+  document.getElementById('panel-title').textContent = '💭 Emotions';
+  while (c.firstChild) c.removeChild(c.firstChild);
+  const emos = s.emotions || {};
+  const colors = { joy:'#FFD93D', curiosity:'#4D96FF', pride:'#A855F7', stress:'#FF6B6B', loneliness:'#6B7280' };
+  const grid = document.createElement('div'); grid.className = 'emo-grid';
+  for (const [key, val] of Object.entries(emos)) {
+    const item = document.createElement('div'); item.className = 'emo-item';
+    const lbl = document.createElement('span'); lbl.textContent = key;
+    const bar = document.createElement('div'); bar.className = 'emo-bar';
+    const fill = document.createElement('div'); fill.className = 'emo-fill';
+    fill.style.width = val + '%'; fill.style.background = colors[key] || '#888';
+    bar.appendChild(fill); item.appendChild(lbl); item.appendChild(bar);
+    const num = document.createElement('span'); num.textContent = Math.round(val);
+    num.style.color = 'rgba(255,255,255,0.3)'; num.style.fontSize = '9px'; num.style.minWidth = '16px';
+    item.appendChild(num); grid.appendChild(item);
+  }
+  c.appendChild(grid);
+  // Mood summary
+  const mood = document.createElement('div');
+  mood.style.cssText = 'text-align:center; margin-top:12px; font-size:13px; color:#fff;';
+  mood.textContent = (s.moodEmoji || '') + ' ' + (s.mood || 'content');
+  c.appendChild(mood);
+  p.style.display = 'block';
+}
+
+function hidePanel() { document.getElementById('stats-panel').style.display = 'none'; }
+
+// Init
+(async () => { updateUI(await ipcRenderer.invoke('get-state')); })();
+
+// Blink
 setInterval(() => {
   if (currentState !== 'sleep' && currentState !== 'happy') {
-    const eyes = document.getElementById('eyes');
-    const closed = document.getElementById('eyes-closed');
-    eyes.style.display = 'none'; closed.style.display = '';
-    setTimeout(() => {
-      if (currentState !== 'sleep' && currentState !== 'happy') {
-        eyes.style.display = ''; closed.style.display = 'none';
-      }
-    }, 150);
+    const o = document.getElementById('eyes-open'), s = document.getElementById('eyes-shut');
+    o.style.display = 'none'; s.style.display = '';
+    setTimeout(() => { if (currentState !== 'sleep' && currentState !== 'happy') { o.style.display = ''; s.style.display = 'none'; } }, 120);
   }
-}, 4000);
+}, 3500);
 </script>
 </body>
 </html>
