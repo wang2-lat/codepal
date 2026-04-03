@@ -183,58 +183,73 @@ html, body {
     <div id="activity-badge"></div>
     <!-- ZZZ container -->
     <div id="zzz-box"></div>
-    <!-- Pet SVG - clean, rounded, cute -->
-    <svg id="pet-svg" viewBox="0 0 100 100" class="a-idle">
+    <!-- Pet SVG - CC-style pixel cat -->
+    <svg id="pet-svg" viewBox="-2 -2 19 20" class="a-idle" shape-rendering="crispEdges">
       <!-- Shadow -->
-      <ellipse cx="50" cy="92" rx="22" ry="4" fill="rgba(0,0,0,0.08)"/>
+      <rect id="shadow" x="3" y="15" width="9" height="1" fill="#000" opacity="0.3"/>
+      <!-- Legs -->
+      <g id="legs" fill="#DE886D">
+        <rect x="3" y="12" width="1" height="3"/>
+        <rect x="5" y="12" width="1" height="3"/>
+        <rect x="9" y="12" width="1" height="3"/>
+        <rect x="11" y="12" width="1" height="3"/>
+      </g>
       <!-- Body -->
-      <ellipse id="body" cx="50" cy="62" rx="28" ry="24" fill="#FFD93D"/>
-      <!-- Head -->
-      <circle id="head" cx="50" cy="36" r="22" fill="#FFD93D"/>
-      <!-- Ears -->
-      <path d="M32,22 L28,4 L42,16 Z" fill="#FFD93D"/>
-      <path d="M68,22 L72,4 L58,16 Z" fill="#FFD93D"/>
-      <path d="M33,20 L30,7 L41,16 Z" fill="#FFB5C0" opacity="0.6"/>
-      <path d="M67,20 L70,7 L59,16 Z" fill="#FFB5C0" opacity="0.6"/>
-      <!-- Eyes - open -->
-      <g id="eyes-open">
-        <ellipse cx="42" cy="34" rx="3.5" ry="4.5" fill="#2D2D2D"/>
-        <ellipse cx="58" cy="34" rx="3.5" ry="4.5" fill="#2D2D2D"/>
-        <circle cx="40.5" cy="32.5" r="1.5" fill="#fff" opacity="0.9"/>
-        <circle cx="56.5" cy="32.5" r="1.5" fill="#fff" opacity="0.9"/>
+      <g id="body-group">
+        <!-- Torso -->
+        <rect id="body" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+        <!-- Arms -->
+        <rect id="arm-l" x="0" y="9" width="2" height="2" fill="#DE886D"/>
+        <rect id="arm-r" x="13" y="9" width="2" height="2" fill="#DE886D"/>
+        <!-- Ears (pixel triangles) -->
+        <rect x="3" y="3" width="1" height="1" fill="#DE886D"/>
+        <rect x="4" y="2" width="1" height="1" fill="#DE886D"/>
+        <rect x="4" y="4" width="1" height="1" fill="#DE886D"/>
+        <rect x="10" y="3" width="1" height="1" fill="#DE886D"/>
+        <rect x="10" y="4" width="1" height="1" fill="#DE886D"/>
+        <rect x="10" y="2" width="1" height="1" fill="#DE886D"/>
+        <!-- Ear inners -->
+        <rect x="4" y="3" width="1" height="1" fill="#C47058"/>
+        <rect x="10" y="3" width="1" height="1" fill="#C47058"/>
+        <!-- Head fill -->
+        <rect x="3" y="4" width="9" height="5" fill="#DE886D"/>
+        <!-- Eyes - open -->
+        <g id="eyes-open">
+          <rect x="4" y="6" width="1" height="2" fill="#000"/>
+          <rect x="10" y="6" width="1" height="2" fill="#000"/>
+          <!-- Eye shine -->
+          <rect x="4" y="6" width="1" height="1" fill="#fff" opacity="0.4"/>
+          <rect x="10" y="6" width="1" height="1" fill="#fff" opacity="0.4"/>
+        </g>
+        <!-- Eyes - closed (blink/sleep) -->
+        <g id="eyes-shut" style="display:none">
+          <rect x="4" y="7" width="1" height="1" fill="#000"/>
+          <rect x="10" y="7" width="1" height="1" fill="#000"/>
+        </g>
+        <!-- Eyes - happy (^^ arcs) -->
+        <g id="eyes-arc" style="display:none">
+          <rect x="4" y="6" width="1" height="1" fill="#000"/>
+          <rect x="3" y="7" width="1" height="1" fill="#000"/>
+          <rect x="5" y="7" width="1" height="1" fill="#000"/>
+          <rect x="10" y="6" width="1" height="1" fill="#000"/>
+          <rect x="9" y="7" width="1" height="1" fill="#000"/>
+          <rect x="11" y="7" width="1" height="1" fill="#000"/>
+        </g>
+        <!-- Mouth smile -->
+        <rect id="mouth-smile" x="7" y="8" width="1" height="1" fill="#000"/>
+        <!-- Mouth frown -->
+        <g id="mouth-frown" style="display:none">
+          <rect x="6" y="8" width="3" height="1" fill="#000"/>
+        </g>
       </g>
-      <!-- Eyes - closed -->
-      <g id="eyes-shut" style="display:none">
-        <path d="M38,34 Q42,37 46,34" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M54,34 Q58,37 62,34" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </g>
-      <!-- Eyes - happy -->
-      <g id="eyes-arc" style="display:none">
-        <path d="M38,35 Q42,30 46,35" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M54,35 Q58,30 62,35" stroke="#2D2D2D" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </g>
-      <!-- Nose + mouth -->
-      <circle cx="50" cy="39" r="1.5" fill="#F4845F"/>
-      <path id="mouth-smile" d="M46,43 Q50,47 54,43" stroke="#2D2D2D" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-      <path id="mouth-frown" d="M46,46 Q50,42 54,46" stroke="#2D2D2D" stroke-width="1.2" fill="none" stroke-linecap="round" style="display:none"/>
-      <!-- Blush -->
-      <ellipse cx="36" cy="40" rx="4" ry="2.5" fill="#FFB5C0" opacity="0.35"/>
-      <ellipse cx="64" cy="40" rx="4" ry="2.5" fill="#FFB5C0" opacity="0.35"/>
-      <!-- Tail -->
-      <path d="M76,62 Q92,48 88,34" stroke="#E8A317" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Paws -->
-      <ellipse cx="38" cy="84" rx="8" ry="4" fill="#FFD93D"/>
-      <ellipse cx="62" cy="84" rx="8" ry="4" fill="#FFD93D"/>
-      <ellipse cx="38" cy="84" rx="5" ry="2.5" fill="#FFEAA0" opacity="0.5"/>
-      <ellipse cx="62" cy="84" rx="5" ry="2.5" fill="#FFEAA0" opacity="0.5"/>
     </svg>
   </div>
 
   <!-- Tooltip -->
   <div id="tooltip">
     <span class="emoji" id="t-emoji">🐱</span>
-    <span class="name" id="t-name">Cat</span>
-    <span class="level" id="t-level">Lv.1</span>
+    <span class="name" id="t-name">CodePal</span>
+    <span class="level" id="t-level"></span>
   </div>
 
   <!-- Mini bars (show on hover) -->
@@ -279,7 +294,7 @@ const BADGE = {
   carrying:'📦', working:'⚙️', sleep:'', wake:'☀️', idle:'',
 };
 const COLORS = {
-  default: '#FFD93D', happy: '#6BCB77', sad: '#B8B8B8', error: '#FF8A8A',
+  default: '#DE886D', happy: '#7EC87E', sad: '#9E9E9E', error: '#E06060',
 };
 
 function setAnim(state) {
@@ -300,7 +315,6 @@ function setAnim(state) {
   // Body color
   const col = state === 'happy' ? COLORS.happy : (state === 'sad' || state === 'error') ? COLORS.sad : COLORS.default;
   document.getElementById('body').setAttribute('fill', col);
-  document.getElementById('head').setAttribute('fill', col);
   // ZZZ
   while (zzzBox.firstChild) zzzBox.removeChild(zzzBox.firstChild);
   if (state === 'sleep') {
@@ -313,9 +327,9 @@ function setAnim(state) {
 
 function updateUI(s) {
   if (!s) return;
-  document.getElementById('t-emoji').textContent = s.speciesEmoji || '🐱';
-  document.getElementById('t-name').textContent = s.nickname || s.speciesName || 'Cat';
-  document.getElementById('t-level').textContent = 'Lv.' + (s.level || 1);
+  document.getElementById('t-emoji').textContent = '';
+  document.getElementById('t-name').textContent = s.nickname || 'CodePal';
+  document.getElementById('t-level').textContent = '';
   document.getElementById('bar-happy').style.width = (s.happiness || 0) + '%';
   document.getElementById('bar-energy').style.width = (s.energy || 0) + '%';
   document.getElementById('bar-xp').style.width = ((s.xp || 0) / Math.max(1, s.xpNext || 20) * 100) + '%';
